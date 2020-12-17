@@ -106,8 +106,8 @@ export function createRoundedTransform(radius?: number | RoundedTransformEdge): 
   return { className: 'rounded', args }
 }
 
-export const CoilNative = requireNativeComponent<any>('RCTCoilView')
-export const CoilModule = NativeModules.CoilModule
+const CoilNative = requireNativeComponent<any>('RCTCoilView')
+const CoilModule = NativeModules.CoilModule
 
 const CoilBase = forwardRef<View, CoilProps>(
   (props, ref) => {
