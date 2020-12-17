@@ -1,0 +1,56 @@
+{
+  "name": "react-native-coil",
+  "version": "0.1.0",
+  "description": "Coil image loading library wrapper for React Native",
+  "license": "MIT",
+  "author": {
+    "name": "Ardy Febriansyah",
+    "email": "ardyfeb02@gmail.com",
+    "url": "https://ardyfeb.github.io"
+  },
+  "keywords": [
+    "react-native",
+    "image",
+    "cache",
+    "coil"
+  ],
+  "homepage": "https://github.com/ardyfeb/react-native-coil#readme",
+  "bugs": {
+    "url": "https://github.com/ardyfeb/react-native-coil/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ardyfeb/react-native-coil.git"
+  },
+  "main": "./dist/Coil.js",
+  "typings": "./dist/Coil.d.ts",
+  "files": [
+    "android",
+    "!android/build",
+    "ios",
+    "!ios/build",
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "release": ""
+  },
+  "devDependencies": {
+    "@babel/core": "^7.8.4",
+    "@babel/runtime": "^7.8.4",
+    "@types/react": "^17.0.0",
+    "@types/react-native": "^0.63.42",
+    "babel-jest": "^25.1.0",
+    "jest": "^25.1.0",
+    "metro-react-native-babel-preset": "^0.59.0",
+    "react-test-renderer": "16.13.1",
+    "typescript": "^4.1.3"
+  },
+  "peerDependencies": {
+    "react": "^16.8.6",
+    "react-native": ">=0.60.0"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
