@@ -12,11 +12,14 @@
     "esModuleInterop": true,
     "noImplicitAny": false,
     "declaration": true,
-    "rootDir": "./src",
+    "baseUrl": ".",
     "outDir": "./dist",
-    "declarationDir": "./dist"
+    "declarationDir": "./dist",
+    "paths": {
+      "react-native-coil": ["./src/Coil"]
+    }
   },
-  "include": ["./src"],
+  "include": ["./src", "./example"],
   "exclude": [
     "node_modules", "babel.config.js"
   ]
