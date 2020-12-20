@@ -32,7 +32,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc --build tsconfig.lib.json",
+    "build": "tsc",
     "release": "yarn build"
   },
   "devDependencies": {
@@ -43,6 +43,8 @@
     "babel-jest": "^25.1.0",
     "jest": "^25.1.0",
     "metro-react-native-babel-preset": "^0.59.0",
+    "react": "16.13.1",
+    "react-native": "^0.63.4",
     "react-test-renderer": "16.13.1",
     "typescript": "^4.1.3"
   },

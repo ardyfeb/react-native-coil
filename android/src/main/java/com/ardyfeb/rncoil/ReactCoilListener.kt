@@ -6,7 +6,7 @@ import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 
-class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Listener {
+open class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Listener {
     private var eventEmitter: RCTEventEmitter = (reactCoil.context as ThemedReactContext).getJSModule(
         RCTEventEmitter::class.java
     )
@@ -29,6 +29,10 @@ class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Listene
             putString("dataSource", metadata.dataSource.toString())
             putBoolean("cachedInMemory", metadata.memoryCacheKey != null)
             putBoolean("isPlaceholderMemoryCacheKeyPresent", metadata.isPlaceholderMemoryCacheKeyPresent)
+        }
+
+        if (metadata.memoryCacheKey != null) {
+            payload.putMap("memoryCacheKey", ReactCoilCache.mapFromKey(metadata.memoryCacheKey!!))
         }
 
         eventEmitter.receiveEvent(reactCoil.id, REACT_ON_SUCCESS_EVENT, payload)

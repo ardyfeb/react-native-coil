@@ -14,33 +14,50 @@ apply plugin: "com.android.library"
 apply plugin: "kotlin-android"
 
 def safeGetExt(prop, fallback) {
-  rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
+    rootProject.ext.has(prop) ? rootProject.ext.get(prop) : fallback
 }
 
 android {
-  compileSdkVersion safeGetExt('compileSdkVersion', 29)
-  buildToolsVersion safeGetExt('buildToolsVersion', '29.0.2')
-  
-  defaultConfig {
-    minSdkVersion safeGetExt('minSdkVersion', 29)
-    targetSdkVersion safeGetExt('targetSdkVersion', 29)
-  }
-  
-  lintOptions {
-    abortOnError false
-  }
+    compileSdkVersion safeGetExt('compileSdkVersion', 29)
+    buildToolsVersion safeGetExt('buildToolsVersion', '29.0.2')
+
+    defaultConfig {
+        minSdkVersion safeGetExt('minSdkVersion', 25)
+        targetSdkVersion safeGetExt('targetSdkVersion', 29)
+    }
+
+    lintOptions {
+        abortOnError false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
 }
 
 repositories {
-  mavenCentral()
-  google()
-  maven {
-    url "https://maven.google.com"
-  }
+    if (project == rootProject) {
+        maven {
+            url "$projectDir/../node_modules/react-native/android"
+        }
+    }
+
+    google()
+    jcenter()
+    mavenCentral()
 }
 
 dependencies {
-  implementation 'com.facebook.react:react-native:+'
-  implementation "io.coil-kt:coil:1.1.0"
-  implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    //noinspection GradleDynamicVersion
+    implementation 'com.facebook.react:react-native:+'
+    implementation "io.coil-kt:coil:1.1.0"
+    implementation "io.coil-kt:coil-gif:1.1.0"
+    implementation "io.coil-kt:coil-video:1.1.0"
+    implementation "io.coil-kt:coil-svg:1.1.0"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 }

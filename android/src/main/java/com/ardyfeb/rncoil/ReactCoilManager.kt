@@ -1,11 +1,9 @@
 package com.ardyfeb.rncoil
 
-import android.os.Build
-import android.widget.ImageView.ScaleType;
+import android.widget.ImageView.ScaleType
 
 import coil.Coil
-import coil.request.Disposable
-import coil.request.ImageRequest
+import coil.request.*
 import coil.size.Scale
 import coil.size.ViewSizeResolver
 import coil.transform.*
@@ -17,8 +15,7 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import okhttp3.Headers
 
-import java.util.*
-
+@Suppress("UNUSED_PARAMETER")
 class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     private lateinit var requestBuilder: ImageRequest.Builder
 
@@ -39,8 +36,22 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
         val instance = ReactCoil(reactContext)
 
         requestBuilder = ImageRequest.Builder(reactContext)
-            .listener(ReactCoilListener(instance))
             .target(instance)
+            .listener(
+                object : ReactCoilListener(instance) {
+//                    override fun onSuccess(request: ImageRequest, metadata: ImageResult.Metadata) {
+//                        super.onSuccess(request, metadata)
+//
+////                        if (metadata.memoryCacheKey != null && cacheKey == null) {
+////                            cacheKey = metadata.memoryCacheKey.hashCode().toString()
+////
+////                            if (!CACHE_MAP.containsKey(cacheKey)) {
+////                                CACHE_MAP[cacheKey!!] = metadata.memoryCacheKey!!
+////                            }
+////                        }
+//                    }
+                }
+            )
 
         return instance
     }
@@ -48,17 +59,13 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     override fun onAfterUpdateTransaction(reactCoil: ReactCoil) {
         super.onAfterUpdateTransaction(reactCoil)
 
-        with (reactCoil.context) {
-            this@ReactCoilManager.disposable = Coil.imageLoader(this).enqueue(
-                this@ReactCoilManager.requestBuilder.build()
-            )
-        }
+        disposable = Coil.imageLoader(reactCoil.context).enqueue(
+            requestBuilder.build()
+        )
     }
 
     override fun onDropViewInstance(reactCoil: ReactCoil) {
-        this.disposable?.let {
-            if (!it.isDisposed) it.dispose()
-        }
+        disposable?.let { if (!it.isDisposed) it.dispose() }
     }
 
     @ReactProp(name = "source")
@@ -115,14 +122,12 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
 
             when (transform.getString("className")) {
                 "blur" -> {
-                    if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN_MR2) {
-                        val radius = args.getDouble(0).toFloat()
-                        val sampling = args.getDouble(1).toFloat()
+                  val radius = args.getDouble(0).toFloat()
+                  val sampling = args.getDouble(1).toFloat()
 
-                        mapped.add(
-                            BlurTransformation(reactCoil.context, radius, sampling)
-                        )
-                    }
+                  mapped.add(
+                    BlurTransformation(reactCoil.context, radius, sampling)
+                  )
                 }
                 "circle" -> {
                     mapped.add(CircleCropTransformation())
@@ -185,6 +190,7 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
         }
     }
 
+
     @ReactProp(name = "error")
     fun setError(reactCoil: ReactCoil, base64: String?) {
         if (base64 == null) {
@@ -203,6 +209,34 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
             requestBuilder.fallback(
                 ReactCoilBase64.base64ToDrawable(reactCoil.context, base64)
             )
+        }
+    }
+
+    @ReactProp(name = "memoryCacheKey")
+    fun setMemoryCacheKey(reactCoil: ReactCoil, key: ReadableMap?) {
+        if (key != null) {
+            requestBuilder.memoryCacheKey(ReactCoilCache.keyFromMap(key))
+        }
+    }
+
+    @ReactProp(name = "placeholderMemoryCacheKey")
+    fun setPlaceholderCacheKey(reactCoil: ReactCoil, key: ReadableMap?) {
+        if (key != null) {
+            requestBuilder.placeholderMemoryCacheKey(ReactCoilCache.keyFromMap(key))
+        }
+    }
+
+    @ReactProp(name = "videoFrameMilis")
+    fun setVideoFrameMilis(reactCoil: ReactCoil, frame: Long?) {
+        if (frame != null) {
+            requestBuilder.videoFrameMillis(frame)
+        }
+    }
+
+    @ReactProp(name = "videoFrameMicro")
+    fun setVideoFrameMicro(reactCoil: ReactCoil, frame: Long?) {
+        if (frame != null) {
+            requestBuilder.videoFrameMicros(frame)
         }
     }
 

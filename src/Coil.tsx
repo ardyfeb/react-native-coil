@@ -31,6 +31,8 @@ export interface CoilProps extends Partial<CoilEvent>, ViewProps, CoilCommon  {
   scale?: CoilScale
   crossfade?: number
   size?: [number, number]
+  memoryCacheKey?: string
+  placeholderMemoryCacheKey?: string
 }
 
 export interface CoilSource extends CoilCache {
@@ -127,6 +129,8 @@ const CoilBase = forwardRef<View, CoilProps>(
           placeholder={props.placeholder}
           error={props.error}
           fallback={props.fallback}
+          memoryCacheKey={props.memoryCacheKey}
+          placeholderMemoryCacheKey={props.placeholderMemoryCacheKey}
           onCoilStart={props.onStart}
           onCoilError={props.onError}
           onCoilSuccess={props.onSuccess}

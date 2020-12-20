@@ -1,7 +1,14 @@
 package com.ardyfeb.rncoil
 
+import android.os.Build
 import coil.Coil
 import coil.ImageLoader
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.decode.SvgDecoder
+import coil.fetch.VideoFrameFetcher
+import coil.fetch.VideoFrameFileFetcher
+import coil.fetch.VideoFrameUriFetcher
 import coil.request.CachePolicy
 import coil.request.ImageRequest
 import coil.util.CoilUtils
@@ -29,6 +36,18 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
             memoryCachePolicy(CachePolicy.DISABLED)
             okHttpClient(httpClient)
             logger(DebugLogger())
+            componentRegistry {
+                add(VideoFrameUriFetcher(context))
+                add(VideoFrameFileFetcher(context))
+
+                if (Build.VERSION.SDK_INT > 28) {
+                    add(ImageDecoderDecoder())
+                } else {
+                    add(GifDecoder())
+                }
+
+                add(SvgDecoder(context))
+            }
         }
 
         if (options.hasKey("addLastModifiedToFileCacheKey")) {
