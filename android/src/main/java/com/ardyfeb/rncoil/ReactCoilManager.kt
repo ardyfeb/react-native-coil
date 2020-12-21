@@ -3,6 +3,7 @@ package com.ardyfeb.rncoil
 import android.widget.ImageView.ScaleType
 
 import coil.Coil
+import coil.drawable.CrossfadeDrawable
 import coil.memory.MemoryCache
 import coil.request.*
 import coil.size.Scale
@@ -168,6 +169,8 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     fun setCrossfade(reactCoil: ReactCoil, crossfade: Int?) {
         if (crossfade != null) {
             requestBuilder.crossfade(crossfade)
+        } else {
+            requestBuilder.crossfade(CrossfadeDrawable.DEFAULT_DURATION)
         }
     }
 
@@ -221,6 +224,8 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     fun setPlaceholderCacheKey(reactCoil: ReactCoil, key: ReadableMap?) {
         if (key != null) {
             requestBuilder.placeholderMemoryCacheKey(ReactCoilCache.keyFromMap(key))
+        } else {
+            requestBuilder.placeholderMemoryCacheKey(null as String?)
         }
     }
 
@@ -228,6 +233,8 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     fun setVideoFrameMilis(reactCoil: ReactCoil, frame: Int?) {
         if (frame != null) {
             requestBuilder.videoFrameMillis(frame.toLong())
+        } else {
+            requestBuilder.videoFrameMillis(0)
         }
     }
 
@@ -235,6 +242,8 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     fun setVideoFrameMicro(reactCoil: ReactCoil, frame: Int?) {
         if (frame != null) {
             requestBuilder.videoFrameMicros(frame.toLong())
+        } else {
+            requestBuilder.videoFrameMicros(0)
         }
     }
 

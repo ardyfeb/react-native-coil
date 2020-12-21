@@ -2,6 +2,8 @@ import { default as React, Fragment, useEffect, useState } from 'react'
 import { StyleSheet, View, StatusBar } from 'react-native'
 import { Coil, CoilCachePolicy, CoilScale, createBlurTransform } from 'react-native-coil'
 
+Coil.setLoaderOptions({ crossfade: 2000 })
+
 export const App: React.FunctionComponent = props => {
   return (
     <Fragment>
@@ -9,12 +11,13 @@ export const App: React.FunctionComponent = props => {
       <View style={styles.container}>
         <Coil 
           style={styles.coil}
-          memoryCacheKey={Coil.createCacheKey('fi')}
           crossfade={200}
+          onStart={ev => console.log('start', ev.nativeEvent)}
+          onError={ev => console.log('error', ev.nativeEvent)}
           source={
             {
-              uri: 'https://www.inovex.de/blog/wp-content/uploads/2022/01/one-year-of-react-native.png',
-              diskCachePolicy: CoilCachePolicy.DISABLED
+              uri: 'https://i.pinimg.com/originals/60/66/ed/6066edec9178a7a2befd6bc7c5549145.gif',
+              diskCachePolicy: CoilCachePolicy.ENABLED
             }
           }
         />

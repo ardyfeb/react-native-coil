@@ -16,7 +16,11 @@ open class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Li
     }
 
     override fun onError(request: ImageRequest, throwable: Throwable) {
-        eventEmitter.receiveEvent(reactCoil.id, REACT_ON_ERROR_EVENT, null)
+        val payload = WritableNativeMap().apply {
+            putString("error", throwable.toString())
+        }
+
+        eventEmitter.receiveEvent(reactCoil.id, REACT_ON_ERROR_EVENT, payload)
     }
 
     override fun onStart(request: ImageRequest) {
