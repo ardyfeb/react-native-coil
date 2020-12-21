@@ -1,0 +1,10 @@
+{
+  "version": "v1",
+  "packages": {
+    "react-native-coil": {
+      "signature": "851272ccb7ab6e8af842ab922cbb43f1",
+      "file": true,
+      "replaced": "../react-native-coil-0.1.0.tgz"
+    }
+  }
+}

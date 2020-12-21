@@ -1,6 +1,6 @@
 {
   "name": "react-native-coil",
-  "version": "0.1.0",
+  "version": "0.1.0+851272cc",
   "description": "Coil image loading library wrapper for React Native",
   "license": "MIT",
   "author": {
@@ -35,24 +35,12 @@
     "build": "tsc",
     "release": "yarn build"
   },
-  "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/runtime": "^7.8.4",
-    "@types/react": "^17.0.0",
-    "@types/react-native": "^0.63.42",
-    "babel-jest": "^25.1.0",
-    "jest": "^25.1.0",
-    "metro-react-native-babel-preset": "^0.59.0",
-    "react": "16.13.1",
-    "react-native": "^0.63.4",
-    "react-test-renderer": "16.13.1",
-    "typescript": "^4.1.3"
-  },
   "peerDependencies": {
     "react": "^16.8.6",
     "react-native": ">=0.60.0"
   },
   "jest": {
     "preset": "react-native"
-  }
+  },
+  "yalcSig": "851272ccb7ab6e8af842ab922cbb43f1"
 }

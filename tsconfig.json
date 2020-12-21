@@ -15,9 +15,6 @@
     "rootDir": "./src",
     "outDir": "./dist",
     "declarationDir": "./dist",
-    "paths": {
-      "react-native-coil": ["./src/Coil"]
-    }
   },
   "include": ["./src"],
   "exclude": [
