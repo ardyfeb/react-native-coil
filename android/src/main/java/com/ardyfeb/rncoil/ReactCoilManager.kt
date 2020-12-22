@@ -1,5 +1,6 @@
 package com.ardyfeb.rncoil
 
+import android.widget.ImageView
 import android.widget.ImageView.ScaleType
 
 import coil.Coil
@@ -12,7 +13,9 @@ import coil.transform.*
 import com.facebook.react.bridge.ReadableArray
 import com.facebook.react.bridge.ReadableMap
 import com.facebook.react.common.MapBuilder
+import com.facebook.react.uimanager.ReactStylesDiffMap
 import com.facebook.react.uimanager.SimpleViewManager
+import com.facebook.react.uimanager.StateWrapper
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 import okhttp3.Headers
@@ -41,17 +44,7 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
             .target(instance)
             .listener(
                 object : ReactCoilListener(instance) {
-//                    override fun onSuccess(request: ImageRequest, metadata: ImageResult.Metadata) {
-//                        super.onSuccess(request, metadata)
-//
-////                        if (metadata.memoryCacheKey != null && cacheKey == null) {
-////                            cacheKey = metadata.memoryCacheKey.hashCode().toString()
-////
-////                            if (!CACHE_MAP.containsKey(cacheKey)) {
-////                                CACHE_MAP[cacheKey!!] = metadata.memoryCacheKey!!
-////                            }
-////                        }
-//                    }
+                    // TODO: progress listener
                 }
             )
 
@@ -77,14 +70,9 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
         }
 
         if (source.hasKey("headers") && !source.isNull("headers")) {
-            val headersMap = source.getMap("headers")!!
-            val builder = Headers.Builder()
-
-            for ((key, value) in headersMap.entryIterator) {
-                builder.add(key, value as String)
-            }
-
-            requestBuilder.headers(builder.build())
+            requestBuilder.headers(
+                ReactCoilModule.headerFromMap(source.getMap("headers")!!)
+            )
         }
 
         if (source.hasKey("diskCachePolicy")) {
@@ -257,7 +245,7 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
             "center" to ScaleType.CENTER_INSIDE
         )
 
-        private val SCALE_TYPE = mapOf<String, Scale>(
+        private val SCALE_TYPE = mapOf(
             "fit" to Scale.FIT,
             "fill" to Scale.FILL
         )

@@ -1,8 +1,10 @@
-export interface CoilCacheKey {
+export type CoilCacheKey = CoilCacheKeySimple | CoilCacheKeyComplex
+
+export interface CoilCacheKeyBase {
   type: 'simple' | 'complex'
 }
 
-export interface CoilCacheKeyComplex extends CoilCacheKey {
+export interface CoilCacheKeyComplex extends CoilCacheKeyBase {
   base: string
   transformations: string[]
   size: {
@@ -12,10 +14,14 @@ export interface CoilCacheKeyComplex extends CoilCacheKey {
   parameters: Record<string, string>
 }
 
-export interface CoilCacheKeySimple extends CoilCacheKey {
+export interface CoilCacheKeySimple extends CoilCacheKeyBase {
   value: string
 }
 
 export function createCacheKey(value: string): CoilCacheKeySimple {
   return Object.freeze({ type: 'simple', value })
+}
+
+export function cacheKeyIsSimple(key: CoilCacheKey): key is CoilCacheKeySimple {
+  return key.type == 'simple'
 }

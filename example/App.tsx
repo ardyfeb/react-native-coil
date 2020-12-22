@@ -1,8 +1,8 @@
-import { default as React, Fragment, useEffect, useState } from 'react'
+import { default as React, Fragment} from 'react'
 import { StyleSheet, View, StatusBar } from 'react-native'
-import { Coil, CoilCachePolicy, CoilScale, createBlurTransform } from 'react-native-coil'
+import { Coil, CoilCachePolicy, CoilResizeMode } from 'react-native-coil'
 
-Coil.setLoaderOptions({ crossfade: 2000 })
+Coil.setLoaderOptions({ crossfade: 400, diskCachePolicy: CoilCachePolicy.DISABLED })
 
 export const App: React.FunctionComponent = props => {
   return (
@@ -11,13 +11,12 @@ export const App: React.FunctionComponent = props => {
       <View style={styles.container}>
         <Coil 
           style={styles.coil}
-          crossfade={200}
-          onStart={ev => console.log('start', ev.nativeEvent)}
-          onError={ev => console.log('error', ev.nativeEvent)}
+          memoryCacheKey={Coil.createCacheKey('image')}
+          resizeMode={CoilResizeMode.COVER}
           source={
             {
-              uri: 'https://i.pinimg.com/originals/60/66/ed/6066edec9178a7a2befd6bc7c5549145.gif',
-              diskCachePolicy: CoilCachePolicy.ENABLED
+              uri: 'https://juabali.gumlet.io/user/image/plant.jpg?w=100',
+              memoryCachePolicy: CoilCachePolicy.ENABLED
             }
           }
         />

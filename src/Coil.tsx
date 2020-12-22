@@ -1,13 +1,15 @@
 import { default as React, forwardRef, PropsWithoutRef, RefAttributes, useMemo } from 'react'
 import { View, StyleSheet, NativeSyntheticEvent, ViewProps, requireNativeComponent, NativeModules } from 'react-native'
 
-import { CoilCacheKeyComplex, CoilCacheKeySimple, createCacheKey } from './Cache'
+import { CoilCacheKey, CoilCacheKeyComplex, CoilCacheKeySimple, createCacheKey } from './Cache'
 
 export interface CoilOptions extends CoilCommon, CoilCache {
   availableMemoryPercentage?: number
   allowHardware?: boolean
   allowRgba565?: boolean
   crossfade?: boolean | number
+  bitmapPoolingEnabled?: boolean
+  bitmapPoolPercentage?: number
 }
 
 export interface CoilCommon {
@@ -18,7 +20,7 @@ export interface CoilCommon {
 
 export interface CoilStatic {
   setLoaderOptions: (options: CoilOptions) => void
-  prefetch: (sources: string[], loadTo: 'DISK' | 'MEMOR') => void 
+  prefetch: (sources: string[], loadTo: 'DISK' | 'MEMORY') => void 
   clearAllCache: () => void
   clearMemoryCache: () => void
   clearDiskCache: () => void
@@ -34,8 +36,8 @@ export interface CoilProps extends Partial<CoilEvent>, ViewProps, CoilCommon  {
   scale?: CoilScale
   crossfade?: number
   size?: [number, number]
-  memoryCacheKey?: CoilCacheKeySimple
-  placeholderMemoryCacheKey?: string
+  memoryCacheKey?: CoilCacheKey
+  placeholderMemoryCacheKey?: CoilCacheKey
   videoFrameMilis?: number
   videoFrameMicro?: number
 }
@@ -71,8 +73,12 @@ export enum CoilCachePolicy {
 export interface CoilEvent {
   onStart: (event: NativeSyntheticEvent<null>) => void
   onCancel: (event: NativeSyntheticEvent<null>) => void
-  onError: (event: NativeSyntheticEvent<null>) => void
+  onError: (event: NativeSyntheticEvent<CoilErrorEvent>) => void
   onSuccess: (event: NativeSyntheticEvent<CoilSuccessEvent>) => void
+}
+
+export interface CoilErrorEvent {
+  error: string
 }
 
 export interface CoilSuccessEvent {
@@ -139,7 +145,15 @@ const CoilBase = forwardRef<View, CoilProps>(
 
     const onCoilSuccess = (event: NativeSyntheticEvent<CoilSuccessEvent>): void => {
       if (typeof props.onSuccess == 'function') {
-        props.onSuccess({ ...event, nativeEvent: Object.freeze(event.nativeEvent) })
+        props.onSuccess(
+          { 
+            ...event, 
+            nativeEvent: {
+               ...event.nativeEvent, 
+               memoryCacheKey: Object.freeze(event.nativeEvent.memoryCacheKey)
+              }
+            }
+        )
       }
     }
 
