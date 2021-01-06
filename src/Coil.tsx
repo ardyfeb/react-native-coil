@@ -1,5 +1,5 @@
 import { default as React, forwardRef, PropsWithoutRef, RefAttributes, useMemo } from 'react'
-import { View, StyleSheet, NativeSyntheticEvent, ViewProps, requireNativeComponent, NativeModules } from 'react-native'
+import { View, StyleSheet, NativeSyntheticEvent, ViewProps, requireNativeComponent, NativeModules, NativeMethods, HostComponent } from 'react-native'
 
 import { CoilCacheKey, CoilCacheKeyComplex, CoilCacheKeySimple, createCacheKey } from './Cache'
 
@@ -29,7 +29,7 @@ export interface CoilStatic {
 
 export type CoilComponentType = React.ForwardRefExoticComponent<PropsWithoutRef<CoilProps> & RefAttributes<View>> & CoilStatic
 
-export interface CoilProps extends Partial<CoilEvent>, ViewProps, CoilCommon  {
+export interface CoilProps extends Partial<CoilEvent>, ViewProps, CoilCommon {
   source: CoilSource
   transforms?: CoilTransform[]
   resizeMode?: CoilResizeMode
@@ -40,6 +40,8 @@ export interface CoilProps extends Partial<CoilEvent>, ViewProps, CoilCommon  {
   placeholderMemoryCacheKey?: CoilCacheKey
   videoFrameMilis?: number
   videoFrameMicro?: number
+  renderer?: React.ComponentType<CoilProps>
+  rendererProps?: Record<string, any>
 }
 
 export interface CoilSource extends CoilCache {
@@ -123,7 +125,7 @@ export function createRoundedTransform(radius?: number | RoundedTransformEdge): 
 const CoilNative = requireNativeComponent<any>('RCTCoilView')
 const CoilModule = NativeModules.CoilModule
 
-const CoilBase = forwardRef<View, CoilProps>(
+const CoilBase = forwardRef<NativeMethods, CoilProps>(
   (props, ref) => {
     if (props.transforms?.some(transform => transform.className == 'rounded')) {
       if (!props.size) {
@@ -132,17 +134,17 @@ const CoilBase = forwardRef<View, CoilProps>(
         )
       }
     }
-
+  
     if (props.videoFrameMilis && props.videoFrameMicro) {
       console.warn(
         'You have both `videoFrameMilis` and `videoFrameMicro` props, please select one of that'
       )
     }
-
+  
     const computedStyle = useMemo(
       () => StyleSheet.flatten([styles.wrapper, props.style]), [props.style]
     )
-
+  
     const onCoilSuccess = (event: NativeSyntheticEvent<CoilSuccessEvent>): void => {
       if (typeof props.onSuccess == 'function') {
         props.onSuccess(
@@ -157,11 +159,14 @@ const CoilBase = forwardRef<View, CoilProps>(
       }
     }
 
+    const Renderer = useMemo(() => props.renderer as HostComponent<any> || CoilNative, [])
+  
     return (
-      <View {...props} style={computedStyle} ref={ref}>
-        <CoilNative 
+      <View {...props} style={computedStyle}>
+        <Renderer 
           style={StyleSheet.absoluteFillObject}
           source={props.source}
+          ref={ref as any}
           transform={props.transforms || []}
           resizeMode={props.resizeMode || CoilResizeMode.CENTER}
           crossfade={props.crossfade}
@@ -177,6 +182,7 @@ const CoilBase = forwardRef<View, CoilProps>(
           onCoilError={props.onError}
           onCoilSuccess={onCoilSuccess}
           onCoilCancel={props.onCancel}
+          {...props.rendererProps}
         />
       </View>
     )
