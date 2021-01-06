@@ -2,6 +2,7 @@ package com.ardyfeb.rncoil;
 
 import com.facebook.react.bridge.ReadableArray;
 import com.facebook.react.bridge.ReadableMap;
+import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableNativeArray;
@@ -17,35 +18,51 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/***
+ * Hacky way to access internal data class on `MemoryCache.Key`
+ */
 class ReactCoilCache {
     static MemoryCache.Key keyFromMap(ReadableMap map) {
         String type = Objects.requireNonNull(map.getString("type"));
 
         if (type.equals("complex")) {
-            Size size;
+            Size size = null;
 
-            if (map.getDynamic("size").getType() == ReadableType.String) {
-                size = OriginalSize.INSTANCE;
-            } else {
-                size = new PixelSize(
-                    Objects.requireNonNull(map.getMap("size")).getInt("width"),
-                    Objects.requireNonNull(map.getMap("size")).getInt("height")
-                );
+            if (map.hasKey("size")) {
+                if (map.getDynamic("size").getType() == ReadableType.String) {
+                    size = OriginalSize.INSTANCE;
+                } else {
+                    size = new PixelSize(
+                        Objects.requireNonNull(map.getMap("size")).getInt("width"),
+                        Objects.requireNonNull(map.getMap("size")).getInt("height")
+                    );
+                }
             }
 
-            ReadableArray transformationsRaw = map.getArray("transformations");
             ArrayList<String> transforms = new ArrayList<>();
 
-            if (transformationsRaw != null) {
-                for (int i = 0; i < transformationsRaw.size(); i++) {
-                    transforms.add(transformationsRaw.getString(i));
+            if (map.hasKey("transformations")) {
+                ReadableArray transformationsRaw = map.getArray("transformations");
+
+                if (transformationsRaw != null) {
+                    for (int i = 0; i < transformationsRaw.size(); i++) {
+                        transforms.add(transformationsRaw.getString(i));
+                    }
                 }
             }
 
             HashMap<String, String> parameters = new HashMap<>();
 
-            for (Map.Entry<String, String> params : parameters.entrySet()) {
-                parameters.put(params.getKey(), params.getValue());
+            if (map.hasKey("parameters")) {
+                ReadableMap params = map.getMap("parameters");
+                ReadableMapKeySetIterator iterator = params.keySetIterator();
+
+                while (iterator.hasNextKey()) {
+                    String key = iterator.nextKey();
+                    String value = params.getString(key);
+
+                    parameters.put(key, value);
+                }
             }
 
             return new MemoryCache.Key.Complex(Objects.requireNonNull(map.getString("base")), transforms, size, parameters);

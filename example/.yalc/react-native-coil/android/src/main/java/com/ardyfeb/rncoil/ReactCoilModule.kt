@@ -16,6 +16,7 @@ import coil.util.DebugLogger
 
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.network.OkHttpClientProvider
+import okhttp3.Headers
 
 import java.lang.IllegalArgumentException
 
@@ -76,6 +77,14 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
                     )
                 }
             }
+        }
+
+        if (options.hasKey("bitmapPoolingEnabled")) {
+            loader.bitmapPoolingEnabled(options.getBoolean("bitmapPoolingEnabled"))
+        }
+
+        if (options.hasKey("bitmapPoolPercentage")) {
+            loader.bitmapPoolPercentage(options.getDouble("bitmapPoolPercentage"))
         }
 
         if (options.hasKey("placeholder")) {
@@ -182,6 +191,16 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
             }
 
             return policy ?: throw NoSuchKeyException("Unrecognized cache policy")
+        }
+
+        fun headerFromMap(map: ReadableMap): Headers {
+            val builder = Headers.Builder()
+
+            for ((key, value) in map.entryIterator) {
+                builder.add(key, value as String)
+            }
+
+            return builder.build()
         }
 
 //        fun loadAsDrawable(context: Context, uri: String, callback: (drawable: Drawable?) -> Unit) {

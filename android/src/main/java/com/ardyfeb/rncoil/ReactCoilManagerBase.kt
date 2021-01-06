@@ -1,5 +1,6 @@
 package com.ardyfeb.rncoil
 
+import android.widget.ImageView
 import android.widget.ImageView.ScaleType
 
 import coil.Coil
@@ -15,12 +16,10 @@ import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.annotations.ReactProp
 
 @Suppress("UNUSED_PARAMETER")
-class ReactCoilManager : SimpleViewManager<ReactCoil>() {
+abstract class ReactCoilManagerBase<T> : SimpleViewManager<T>() where T: ImageView {
     private lateinit var requestBuilder: ImageRequest.Builder
 
     private var disposable: Disposable? = null
-
-    override fun getName(): String = REACT_CLASS
 
     override fun getExportedCustomDirectEventTypeConstants(): Map<String, Any> {
         return mapOf<String, Any>(
@@ -31,13 +30,15 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
         )
     }
 
-    override fun createViewInstance(reactContext: ThemedReactContext): ReactCoil {
-        val instance = ReactCoil(reactContext)
+    abstract fun getImageView(reactContext: ThemedReactContext): T
+
+    override fun createViewInstance(reactContext: ThemedReactContext): T {
+        val instance = getImageView(reactContext)
 
         requestBuilder = ImageRequest.Builder(reactContext)
             .target(instance)
             .listener(
-                object : ReactCoilListener(instance) {
+                object : ReactCoilListener<T>(instance) {
                     // TODO: progress listener
                 }
             )
@@ -45,20 +46,20 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
         return instance
     }
 
-    override fun onAfterUpdateTransaction(reactCoil: ReactCoil) {
-        super.onAfterUpdateTransaction(reactCoil)
+    override fun onAfterUpdateTransaction(view: T) {
+        super.onAfterUpdateTransaction(view)
 
-        disposable = Coil.imageLoader(reactCoil.context).enqueue(
+        disposable = Coil.imageLoader(view.context).enqueue(
             requestBuilder.build()
         )
     }
 
-    override fun onDropViewInstance(reactCoil: ReactCoil) {
+    override fun onDropViewInstance(view: T) {
         disposable?.let { if (!it.isDisposed) it.dispose() }
     }
 
     @ReactProp(name = "source")
-    fun setSource(reactCoil: ReactCoil, source: ReadableMap?) {
+    fun setSource(view: T, source: ReadableMap?) {
         if (source == null || !source.hasKey("uri")) {
             return
         }
@@ -97,7 +98,7 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     }
 
     @ReactProp(name = "transform")
-    fun setTransform(reactCoil: ReactCoil, transforms: ReadableArray) {
+    fun setCoilTransform(view: T, transforms: ReadableArray) {
         val mapped: MutableList<Transformation> = mutableListOf()
 
         for (i in 0 until transforms.size()) {
@@ -106,12 +107,12 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
 
             when (transform.getString("className")) {
                 "blur" -> {
-                  val radius = args.getDouble(0).toFloat()
-                  val sampling = args.getDouble(1).toFloat()
+                    val radius = args.getDouble(0).toFloat()
+                    val sampling = args.getDouble(1).toFloat()
 
-                  mapped.add(
-                    BlurTransformation(reactCoil.context, radius, sampling)
-                  )
+                    mapped.add(
+                        BlurTransformation(view.context, radius, sampling)
+                    )
                 }
                 "circle" -> {
                     mapped.add(CircleCropTransformation())
@@ -136,19 +137,19 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     }
 
     @ReactProp(name = "resizeMode")
-    fun setResizeMode(reactCoil: ReactCoil, resizeMode: String?) {
-        reactCoil.scaleType = RESIZE_MODE[resizeMode]
+    fun setResizeMode(view: T, resizeMode: String?) {
+        view.scaleType = RESIZE_MODE[resizeMode]
     }
 
     @ReactProp(name = "scale")
-    fun setScale(reactCoil: ReactCoil, scale: String?) {
+    fun setScale(view: T, scale: String?) {
         if (scale != null) {
             SCALE_TYPE[scale]?.let { requestBuilder.scale(it) }
         }
     }
 
     @ReactProp(name = "crossfade")
-    fun setCrossfade(reactCoil: ReactCoil, crossfade: Int?) {
+    fun setCrossfade(view: T, crossfade: Int?) {
         if (crossfade != null) {
             requestBuilder.crossfade(crossfade)
         } else {
@@ -157,53 +158,53 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     }
 
     @ReactProp(name = "size")
-    fun setSize(reactCoil: ReactCoil, size: ReadableArray?) {
+    fun setSize(view: T, size: ReadableArray?) {
         if (size != null) {
             requestBuilder.size(size.getInt(0), size.getInt(1))
         }
     }
 
     @ReactProp(name = "placeholder")
-    fun setPlaceholder(reactCoil: ReactCoil, base64: String?) {
+    fun setPlaceholder(view: T, base64: String?) {
         if (base64 == null) {
             requestBuilder.placeholder(null)
         } else {
             requestBuilder.placeholder(
-                ReactCoilBase64.base64ToDrawable(reactCoil.context, base64)
+                ReactCoilBase64.base64ToDrawable(view.context, base64)
             )
         }
     }
 
     @ReactProp(name = "error")
-    fun setError(reactCoil: ReactCoil, base64: String?) {
+    fun setError(view: T, base64: String?) {
         if (base64 == null) {
             requestBuilder.error(null)
         } else {
             requestBuilder.error(
-                ReactCoilBase64.base64ToDrawable(reactCoil.context, base64)
+                ReactCoilBase64.base64ToDrawable(view.context, base64)
             )
         }
     }
     @ReactProp(name = "fallback")
-    fun setFallback(reactCoil: ReactCoil, base64: String?) {
+    fun setFallback(view: T, base64: String?) {
         if (base64 == null) {
             requestBuilder.fallback(null)
         } else {
             requestBuilder.fallback(
-                ReactCoilBase64.base64ToDrawable(reactCoil.context, base64)
+                ReactCoilBase64.base64ToDrawable(view.context, base64)
             )
         }
     }
 
     @ReactProp(name = "memoryCacheKey")
-    fun setMemoryCacheKey(reactCoil: ReactCoil, key: ReadableMap?) {
+    fun setMemoryCacheKey(view: T, key: ReadableMap?) {
         if (key != null) {
             requestBuilder.memoryCacheKey(ReactCoilCache.keyFromMap(key))
         }
     }
 
     @ReactProp(name = "placeholderMemoryCacheKey")
-    fun setPlaceholderCacheKey(reactCoil: ReactCoil, key: ReadableMap?) {
+    fun setPlaceholderCacheKey(view: T, key: ReadableMap?) {
         if (key != null) {
             requestBuilder.placeholderMemoryCacheKey(ReactCoilCache.keyFromMap(key))
         } else {
@@ -212,7 +213,7 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     }
 
     @ReactProp(name = "videoFrameMilis")
-    fun setVideoFrameMilis(reactCoil: ReactCoil, frame: Int?) {
+    fun setVideoFrameMilis(view: T, frame: Int?) {
         if (frame != null) {
             requestBuilder.videoFrameMillis(frame.toLong())
         } else {
@@ -221,7 +222,7 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     }
 
     @ReactProp(name = "videoFrameMicro")
-    fun setVideoFrameMicro(reactCoil: ReactCoil, frame: Int?) {
+    fun setVideoFrameMicro(view: T, frame: Int?) {
         if (frame != null) {
             requestBuilder.videoFrameMicros(frame.toLong())
         } else {
@@ -230,8 +231,6 @@ class ReactCoilManager : SimpleViewManager<ReactCoil>() {
     }
 
     companion object {
-        private const val REACT_CLASS = "RCTCoilView"
-
         private val RESIZE_MODE = mapOf(
             "contain" to ScaleType.FIT_CENTER,
             "cover" to ScaleType.CENTER_CROP,

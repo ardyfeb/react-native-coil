@@ -60,4 +60,8 @@ dependencies {
     implementation "io.coil-kt:coil-video:1.1.0"
     implementation "io.coil-kt:coil-svg:1.1.0"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+
+//    if (safeGetExt("includeZoomFeature", false)) {
+//        implementation 'com.github.chrisbanes:PhotoView:2.3.0'
+//    }
 }
