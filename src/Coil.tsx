@@ -40,7 +40,7 @@ export interface CoilProps extends Partial<CoilEvent>, ViewProps, CoilCommon {
   placeholderMemoryCacheKey?: CoilCacheKey
   videoFrameMilis?: number
   videoFrameMicro?: number
-  renderer?: React.ComponentType<CoilProps>
+  renderer?: React.ComponentType<Omit<CoilProps, 'renderer' | 'rendererProps'>>
   rendererProps?: Record<string, any>
 }
 

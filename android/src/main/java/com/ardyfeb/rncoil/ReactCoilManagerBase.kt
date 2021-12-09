@@ -36,7 +36,7 @@ abstract class ReactCoilManagerBase<T> : SimpleViewManager<T>() where T: ImageVi
         val instance = getImageView(reactContext)
 
         requestBuilder = ImageRequest.Builder(reactContext)
-            .target(instance)
+            .target{ instance.setImageDrawable(it) }
             .listener(
                 object : ReactCoilListener<T>(instance) {
                     // TODO: progress listener
@@ -60,41 +60,41 @@ abstract class ReactCoilManagerBase<T> : SimpleViewManager<T>() where T: ImageVi
 
     @ReactProp(name = "source")
     fun setSource(view: T, source: ReadableMap?) {
-        if (source == null || !source.hasKey("uri")) {
-            return
+        if (source != null && source.hasKey("uri")) {
+            if (source.hasKey("headers") && !source.isNull("headers")) {
+                requestBuilder.headers(
+                    ReactCoilModule.headerFromMap(source.getMap("headers")!!)
+                )
+            }
+
+            if (source.hasKey("diskCachePolicy")) {
+                val diskCachePolicy = ReactCoilModule.resolveCachePolicy(
+                    source.getString("diskCachePolicy")!!
+                )
+
+                requestBuilder.diskCachePolicy(diskCachePolicy)
+            }
+
+            if (source.hasKey("memoryCachePolicy")) {
+                val memoryCachePolicy = ReactCoilModule.resolveCachePolicy(
+                    source.getString("memoryCachePolicy")!!
+                )
+
+                requestBuilder.memoryCachePolicy(memoryCachePolicy)
+            }
+
+            if (source.hasKey("networkCachePolicy")) {
+                val networkCachePolicy = ReactCoilModule.resolveCachePolicy(
+                    source.getString("networkCachePolicy")!!
+                )
+
+                requestBuilder.networkCachePolicy(networkCachePolicy)
+            }
+
+            requestBuilder.data(source.getString("uri"))
+        } else {
+            requestBuilder.data(null)
         }
-
-        if (source.hasKey("headers") && !source.isNull("headers")) {
-            requestBuilder.headers(
-                ReactCoilModule.headerFromMap(source.getMap("headers")!!)
-            )
-        }
-
-        if (source.hasKey("diskCachePolicy")) {
-            val diskCachePolicy = ReactCoilModule.resolveCachePolicy(
-                source.getString("diskCachePolicy")!!
-            )
-
-            requestBuilder.diskCachePolicy(diskCachePolicy)
-        }
-
-        if (source.hasKey("memoryCachePolicy")) {
-            val memoryCachePolicy = ReactCoilModule.resolveCachePolicy(
-                source.getString("memoryCachePolicy")!!
-            )
-
-            requestBuilder.memoryCachePolicy(memoryCachePolicy)
-        }
-
-        if (source.hasKey("networkCachePolicy")) {
-            val networkCachePolicy = ReactCoilModule.resolveCachePolicy(
-                source.getString("networkCachePolicy")!!
-            )
-
-            requestBuilder.networkCachePolicy(networkCachePolicy)
-        }
-
-        requestBuilder.data(source.getString("uri"))
     }
 
     @ReactProp(name = "transform")

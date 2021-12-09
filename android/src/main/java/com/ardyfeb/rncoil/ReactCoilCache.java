@@ -5,6 +5,7 @@ import com.facebook.react.bridge.ReadableMap;
 import com.facebook.react.bridge.ReadableMapKeySetIterator;
 import com.facebook.react.bridge.ReadableType;
 import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.WritableNativeMap;
 
@@ -29,7 +30,7 @@ class ReactCoilCache {
             Size size = null;
 
             if (map.hasKey("size")) {
-                if (map.getDynamic("size").getType() == ReadableType.String) {
+                if (map.getType("size") == ReadableType.String) {
                     size = OriginalSize.INSTANCE;
                 } else {
                     size = new PixelSize(
@@ -71,15 +72,14 @@ class ReactCoilCache {
         }
     }
 
-    static ReadableMap mapFromKey(MemoryCache.Key key) {
+    static WritableMap mapFromKey(MemoryCache.Key key) {
         WritableNativeMap builder = new WritableNativeMap();
 
         if (key instanceof MemoryCache.Key.Complex) {
             MemoryCache.Key.Complex complexKey = (MemoryCache.Key.Complex) key;
+            Size sizeType = complexKey.getSize();
 
-            if (complexKey.getSize() instanceof OriginalSize) {
-                builder.putString("size", complexKey.getSize().toString());
-            } else if (complexKey.getSize() instanceof PixelSize) {
+            if (sizeType instanceof PixelSize) {
                 PixelSize pixelSize = (PixelSize) complexKey.getSize();
                 WritableNativeMap sizeMap = new WritableNativeMap();
 
@@ -87,6 +87,10 @@ class ReactCoilCache {
                 sizeMap.putInt("width", pixelSize.getWidth());
 
                 builder.putMap("size", sizeMap);
+            }
+
+            if (sizeType instanceof  OriginalSize) {
+                builder.putString("size", complexKey.getSize().toString());
             }
 
             if (complexKey.getTransformations().size() > 0) {

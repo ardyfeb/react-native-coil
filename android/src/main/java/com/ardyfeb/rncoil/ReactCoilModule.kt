@@ -17,17 +17,22 @@ import coil.util.DebugLogger
 import com.facebook.react.bridge.*
 import com.facebook.react.modules.network.OkHttpClientProvider
 import okhttp3.Headers
+import okhttp3.OkHttpClient
 
 import java.lang.IllegalArgumentException
+import java.util.concurrent.TimeUnit
 
 class ReactCoilModule(private val context: ReactApplicationContext) : ReactContextBaseJavaModule(context) {
     override fun getName(): String = REACT_CLASS
 
     @ReactMethod
     fun setLoaderOptions(options: ReadableMap) {
-        val httpClient = OkHttpClientProvider.getOkHttpClient()
-            .newBuilder()
+        OkHttpClientProvider.getOkHttpClient()
+        val httpClient = OkHttpClient.Builder()
             .cache(CoilUtils.createDefaultCache(context))
+            .connectTimeout(0, TimeUnit.MILLISECONDS)
+            .readTimeout(0, TimeUnit.MILLISECONDS)
+            .writeTimeout(0, TimeUnit.MILLISECONDS)
             .build()
 
         val loader = ImageLoader.Builder(context).apply {
@@ -58,19 +63,19 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
         }
 
         if (options.hasKey("allowHardware")) {
-            loader.allowHardware(options.getDynamic("allowHardware").asBoolean())
+            loader.allowHardware(options.getBoolean("allowHardware"))
         }
 
         if (options.hasKey("allowRgb565")) {
-            loader.allowRgb565(options.getDynamic("allowRgb565").asBoolean())
+            loader.allowRgb565(options.getBoolean("allowRgb565"))
         }
 
         if (options.hasKey("crossfade")) {
-            val crossfade = options.getDynamic("crossfade")
+            val crossfade = options.getType("crossfade")
 
-            when (crossfade.type) {
-                ReadableType.Boolean -> loader.crossfade(crossfade.asBoolean())
-                ReadableType.Number -> loader.crossfade(crossfade.asInt())
+            when (crossfade) {
+                ReadableType.Boolean -> loader.crossfade(options.getBoolean("crossfade"))
+                ReadableType.Number -> loader.crossfade(options.getInt("crossfade"))
                 else -> {
                     throw IllegalArgumentException(
                         "Invalid `crossfade` option, expected `number` | `boolean` received `$crossfade`"
@@ -173,9 +178,7 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
 
     @ReactMethod()
     fun clearDiskCache() {
-        CoilUtils.createDefaultCache(context)
-            .directory()
-            .deleteRecursively()
+      	CoilUtils.createDefaultCache(context).directory().deleteRecursively()
     }
 
     companion object {
@@ -195,25 +198,14 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
 
         fun headerFromMap(map: ReadableMap): Headers {
             val builder = Headers.Builder()
+            val iterator = map.keySetIterator()
 
-            for ((key, value) in map.entryIterator) {
-                builder.add(key, value as String)
+            while (iterator.hasNextKey()) {
+                val header = iterator.nextKey()
+                builder.add(header, map.getString(header))
             }
 
             return builder.build()
         }
-
-//        fun loadAsDrawable(context: Context, uri: String, callback: (drawable: Drawable?) -> Unit) {
-//            val request = ImageRequest.Builder(context)
-//                .crossfade(false)
-//                .data(uri)
-//                .target(
-//                    onSuccess = { drawable -> callback(drawable) },
-//                    onError = { callback(null) }
-//                )
-//                .build()
-//
-//            Coil.imageLoader(context).enqueue(request)
-//        }
     }
 }

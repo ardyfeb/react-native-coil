@@ -1,18 +1,19 @@
 package com.ardyfeb.rncoil
 
+import android.widget.ImageView
 import coil.request.ImageRequest
 import coil.request.ImageResult
 import com.facebook.react.bridge.WritableNativeMap
 import com.facebook.react.uimanager.ThemedReactContext
 import com.facebook.react.uimanager.events.RCTEventEmitter
 
-open class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Listener {
-    private var eventEmitter: RCTEventEmitter = (reactCoil.context as ThemedReactContext).getJSModule(
+open class ReactCoilListener<T>(private val view: T) : ImageRequest.Listener where T: ImageView {
+    private var eventEmitter: RCTEventEmitter = (view.context as ThemedReactContext).getJSModule(
         RCTEventEmitter::class.java
     )
 
     override fun onCancel(request: ImageRequest) {
-        eventEmitter.receiveEvent(reactCoil.id, REACT_ON_CANCEL_EVENT, null)
+        eventEmitter.receiveEvent(view.id, REACT_ON_CANCEL_EVENT, null)
     }
 
     override fun onError(request: ImageRequest, throwable: Throwable) {
@@ -20,11 +21,11 @@ open class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Li
             putString("error", throwable.toString())
         }
 
-        eventEmitter.receiveEvent(reactCoil.id, REACT_ON_ERROR_EVENT, payload)
+        eventEmitter.receiveEvent(view.id, REACT_ON_ERROR_EVENT, payload)
     }
 
     override fun onStart(request: ImageRequest) {
-        eventEmitter.receiveEvent(reactCoil.id, REACT_ON_START_EVENT, null)
+        eventEmitter.receiveEvent(view.id, REACT_ON_START_EVENT, null)
     }
 
     override fun onSuccess(request: ImageRequest, metadata: ImageResult.Metadata) {
@@ -39,7 +40,7 @@ open class ReactCoilListener(private val reactCoil: ReactCoil) : ImageRequest.Li
             payload.putMap("memoryCacheKey", ReactCoilCache.mapFromKey(metadata.memoryCacheKey!!))
         }
 
-        eventEmitter.receiveEvent(reactCoil.id, REACT_ON_SUCCESS_EVENT, payload)
+        eventEmitter.receiveEvent(view.id, REACT_ON_SUCCESS_EVENT, payload)
     }
 
     companion object {

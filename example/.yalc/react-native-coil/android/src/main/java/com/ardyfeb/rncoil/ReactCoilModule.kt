@@ -173,9 +173,7 @@ class ReactCoilModule(private val context: ReactApplicationContext) : ReactConte
 
     @ReactMethod()
     fun clearDiskCache() {
-        CoilUtils.createDefaultCache(context)
-            .directory()
-            .deleteRecursively()
+      	CoilUtils.createDefaultCache(context).directory.deleteRecursively()
     }
 
     companion object {
