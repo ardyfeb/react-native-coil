@@ -1,6 +1,6 @@
 {
   "name": "react-native-coil",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Coil image loading library wrapper for React Native",
   "license": "MIT",
   "author": {
